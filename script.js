@@ -1,27 +1,44 @@
 const url =
   "https://raw.githubusercontent.com/Rajavasanthan/jsondata/master/pagenation.json";
-const data1 = fetch(url)
+
+fetch(url)
   .then((data) => data.json())
-  .then((data) => appendAnchor(data));
+  .then((data) => {
+    displayPageNav(data);
+    displayItems();
+  });
 
-let pagination = document.querySelector("#pagination");
-console.log(pagination);
+let arrayData;
+let totalItems;
 
-function appendAnchor(data) {
-  let first = document.createElement("a");
-  first.href = "#";
-  first.innerText = "first";
-  pagination.append(first);
+const displayPageNav = (data) => {
+  arrayData = data;
+  totalItems = data.length;
+  let pagination = ``;
+  const perPage = 10;
+  const pages = Math.ceil(totalItems / perPage);
 
-  let previous = document.createElement("a");
-  previous.href = "#";
-  previous.innerText = "previous";
-  pagination.append(previous);
-
-  for (let i = 1; i < 10; i++) {
-    let anchor = document.createElement("a");
-    anchor.href = "#";
-    anchor.innerText = data[i].id;
-    pagination.append(anchor);
+  for (let i = 1; i <= pages; i++) {
+    pagination += `<a href="#" onClick="displayItems(${i},${perPage})" >${i}</a>`;
   }
-}
+
+  document.getElementById("pagination").innerHTML = pagination;
+};
+
+const displayItems = (page = 1, perPage = 10) => {
+  const trimStart = (page - 1) * perPage;
+  const trimEnd = trimStart + perPage;
+
+  const slicedItems = arrayData.slice(trimStart, trimEnd);
+
+  const html = slicedItems.map(
+    (item) =>
+      `<tr>
+        <td>${item.id}</td>
+        <td>${item.name}</td>
+        <td>${item.email}</td>
+      </tr>`
+  );
+
+  document.querySelector("#container tbody").innerHTML = html.join("");
+};
